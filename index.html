@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CEFIS - Cursos</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="./imgs/favicon.png">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
+
+    <!-- Styles -->
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/animate.css" rel="stylesheet">
+    <link href="./css/loader.css" rel="stylesheet">
+    <style>
+        html, body{
+            background-color: #f5f8fa;
+            font-family: Raleway,sans-serif !important;
+        }
+        #show-course .list-group  .list-group-item:first-child{
+            border-top: none !important;
+        }
+        .card .card-body{
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="loader animated" id="loader">
+        <div class="sk-folding-cube">
+            <div class="sk-cube1 sk-cube"></div>
+            <div class="sk-cube2 sk-cube"></div>
+            <div class="sk-cube4 sk-cube"></div>
+            <div class="sk-cube3 sk-cube"></div>
+        </div> 
+    </div>
+    <div id="app">
+        <!-- Menu Navigation -->
+        <nav class="navbar sticky-top navbar-expand-md navbar-dark bg-info navbar-laravel">
+            <div class="container">
+                <a class="navbar-brand" href="./">CEFIS</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Left Side Of Navbar -->
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item"><a class="nav-link" href="./">Cursos</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Content Page -->
+        <main class="py-4">
+            <div class="container">
+                <!-- Courses List -->
+                <div class="row justify-content-center" id="list-courses"></div>
+    
+                <!-- Course Info -->
+                <div class="row animated fadeIn d-none" id="show-course">
+                    <div class="col-lg-6">
+                        <div class="embed-responsive embed-responsive-16by9">
+                            <!-- Course Video  -->
+                            <iframe class="embed-responsive-item" id="course-video"></iframe>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <!-- Course Title -->
+                                <h5 class="card-title" id="course-title"></h5>
+                                <!-- Course Teachers -->
+                                <p class="card-text" id="course-teachers"></p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-info btn-block rounded-0">Experimente Agora</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 mt-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <!-- Course Banner -->
+                                        <img src="#" class="img-fluid rounded" alt="Banner" id="course-banner">
+                                    </div>
+                                    <div class="col-lg-8">
+                                        <h5>SOBRE O CURSO</h5>
+                                        <!-- Course Resume -->
+                                        <h6 class="text-justify" id="course-resume"></h6>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <h5>O QUE VOCÊ VAI APRENDER</h5>
+                                        <div id="course-classes">
+                                            <!-- Course Class List -->
+                                            <ul class="list-group list-group-flush border-bottom" id="list-classes"></ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <h5>OBJETIVO GERAL</h5>
+                                        <!-- Course Goal -->
+                                        <h6 class="text-justify" id="course-goal"></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-info btn-block rounded-0">Experimente Agora</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="./js/jquery-3.3.1.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/loader.js"></script>
+    <script>
+        jQuery(document).ready(function($){
+            //Get and Show All Courses - LIMITED to 20
+            $.ajax({
+                url: 'https://cefis.com.br/api/v1/event',
+                dataType: 'json',
+                success: function(response){
+                    var count = 0, cols = 0;
+                    var card_deck;
+                    $.each(response.data, function(index, course){
+                        if(count < 20){
+                            if(cols == 0){
+                                card_deck = $('<div class="card-deck mb-3"></div>');
+                            }
+                            if(cols < 4){
+                                //Course Card Info
+                                var card = $('<div class="card"><img class="card-img-top" src="'+course["banner"]+'" alt="Card image cap"><div class="card-img-overlay p-0"><div class="card-text float-right bg-'+(course["status_production"] == 'doing' ? 'info' : 'warning')+' text-white shadow-sm px-2 py-1 mt-2">'+(course["status_production"] == 'doing' ? 'Em Breve' : 'Novo')+'</div></div><div class="card-body"><h5 class="card-title">'+course["title"]+'</h5><h6 class="card-subtitle mb-2 text-muted">'+course["subtitle"]+'</h6><p class="card-text">com '+course["teachers_names"]+'</p><button type="button" class="btn btn-info btn-sm" name="btn_access" id="btn_access" value="'+course["id"]+'">Acessar Curso</button></div></div>');
+                                card.appendTo(card_deck);
+                            }
+                            if(cols == 3){
+                                card_deck.appendTo('#list-courses');
+                                cols = 0;
+                            }else{
+                                cols++;
+                            }
+                        }
+                        count++;
+                    });
+                    hideLoader();
+                }
+            });
+            
+            //Get and Show Specific Course
+            $(document).on('click', 'button[name=btn_access]', function(){
+                var course_id = $(this).val();
+                showLoader(function(){
+                    $('#list-courses div.card-deck').remove();
+                    $.ajax({
+                        url: 'https://cefis.com.br/api/v1/event/'+course_id+'?include=classes',
+                        dataType: 'json',
+                        success: function(response){
+                            var video_link = response.data['video_divulgacao'];
+                            var video_split_link = video_link.split("//");
+                            $('#course-video').prop('src', 'https:'+video_split_link[1])
+                            $('#course-banner').prop('src', response.data['banner'])
+                            $('#course-title').text(response.data['title'])
+                            $('#course-teachers').html('Com: <b>'+response.data['teachers_names']+'</b>')
+                            $('#course-resume').text(response.data['resume'])
+                            $('#course-goal').text(response.data['goal'])
+                            if(response.data['classes'].length > 0){
+                                $.each(response.data['classes'], function(index, aclass){
+                                    $('#list-classes').append('<li class="list-group-item"><a href="#">'+aclass["position"]+' - '+aclass["title"]+'</a></li>');
+                                });
+                            }else{
+                                $('#list-classes').append('<li class="list-group-item">Em breve..</li>');
+                            }
+                            hideLoader(function(){
+                                $('#show-course').removeClass('d-none');
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
